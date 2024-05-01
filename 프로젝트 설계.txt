@@ -1,0 +1,36 @@
+회원
+1) 로그인 : POST /login
+	- req : body (id, pwd)
+	- res : `${name}님 환영합니다.` // => 메인 페이지
+
+2) 회원가입 : POST /join
+	- req : body (id, pwd, name)
+	- res : `${name}님 환영합니다.` // => 로그인 페이지
+
+3) 회원 정보(개별) "조회" : GET /users/:id
+	- req : URL (id)
+	- res : id, name
+
+4) 회원 (개별) 탈퇴 : DELETE /users/:id
+	- req : URL (id)
+	- res : `${name}님 다음에 또 뵙겠습니다.` or 메인 페이지
+
+회원은 계정 1개당 채널 100개를 가질 수 있다.
+
+채널
+- 채널 생성
+- 채널 수정
+- 채널 삭제
+
+로그인 페이지
+(1) 화면 완성 API X
+(2) 로그인 버튼 클릭 => id, pwd 로그인 시켜줄 API
+
+회원 가입 페이지
+(1) 화면 생성 API X
+(2) 회원 가입 버튼 클릭 시, id, pwd, 이름 => 회원 가입 시켜줄 API
+
+마이페이지
+(1) 화면 생성 => 회원 정보 조회 API
+(2) 회원 탈퇴 클릭 시, 회원 탈퇴를 시켜줄 API
+
