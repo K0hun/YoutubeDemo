@@ -49,5 +49,19 @@ app.get('/users/:id', (req, res) => {
 
 // 회원 개별 탈퇴
 app.delete('/users/:id', (req, res) => {
-    
+    let { id } = req.params;
+    id = parseInt(id);
+
+    const user = db.get(id);
+    if (user == undefined) {
+        res.status(404).json({
+            message : '회원 정보가 없습니다.'
+        });
+    } else {
+        db.delete(id);
+
+        res.status(200).json({
+            message : `${user.name}님 다음에 또 뵙겠습니다.`
+        });
+    }
 })
