@@ -1,12 +1,3 @@
-// express 모듈 세팅
-const bodyParser = require('body-parser');
-const express = require('express');
-const app = express();
-app.listen(7777);
-app.use(express.json()) // http 외 모듈 'json'
-
-let db = new Map();
-var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
 db.set(id++, { "userId": "testId1", "password": 1234, "name": "tester1" });
 db.set(id++, { "userId": "testId2", "password": 1234, "name": "tester2" });
 db.set(id++, { "userId": "testId3", "password": 1234, "name": "tester3" });
