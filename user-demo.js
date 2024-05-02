@@ -7,11 +7,43 @@ app.use(express.json()) // http 외 모듈 'json'
 
 let db = new Map();
 var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
-db.set(id++, { "userId": "testId", "password": 1234, "name": "tester" });
+db.set(id++, { "userId": "testId1", "password": 1234, "name": "tester1" });
+db.set(id++, { "userId": "testId2", "password": 1234, "name": "tester2" });
+db.set(id++, { "userId": "testId3", "password": 1234, "name": "tester3" });
 // 로그인
 app.post('/login', (req, res) => {
+    console.log(req.body); // userId, pwd
 
+    // userId가 db에 저장된 회원인지 확인
+    const { userId, password } = req.body;
+    var loginUser = {};
+
+    db.forEach((user, id) => {
+        if (user.userId === userId) {
+            loginUser = user;
+        }
+    });
+
+    if (isExist(loginUser)) {
+        console.log('입력하신 아이디는 없는 아이디 입니다.');
+    } else {
+        console.log('아이디 일치');
+        // pwd도 맞는지 비교
+        if (loginUser.password === password) {
+            console.log('패스워드 일치');
+        } else {
+            console.log('패스워드 불일치');
+        }
+    }
 })
+
+function isExist(obj){
+    if(Object.keys(obj).length){
+        return true;
+    }else{
+        return false;
+    }
+}
 
 // 회원가입
 app.post('/join', (req, res) => {
@@ -34,33 +66,33 @@ app
     .get((req, res) => {
         let { id } = req.params;
         id = parseInt(id);
-    
+
         const user = db.get(id);
         if (user == undefined) {
             res.status(404).json({
-                message : '회원 정보가 없습니다.'
+                message: '회원 정보가 없습니다.'
             });
         } else {
             res.status(200).json({
-                userId : user.userId,
-                name : user.name
+                userId: user.userId,
+                name: user.name
             });
         }
     })
     .delete((req, res) => {
         let { id } = req.params;
         id = parseInt(id);
-    
+
         const user = db.get(id);
         if (user == undefined) {
             res.status(404).json({
-                message : '회원 정보가 없습니다.'
+                message: '회원 정보가 없습니다.'
             });
         } else {
             db.delete(id);
-    
+
             res.status(200).json({
-                message : `${user.name}님 다음에 또 뵙겠습니다.`
+                message: `${user.name}님 다음에 또 뵙겠습니다.`
             });
         }
     })
