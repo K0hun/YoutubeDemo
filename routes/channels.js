@@ -6,7 +6,7 @@ router.use(express.json()) // http 외 모듈 'json'
 
 let db = new Map();
 var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
-db.set(id++, { 'channelTitle': 'Hi~channel' });
+db.set(id++, { 'channelTitle': 'Hi~channel', 'userId': 'testId1' });
 
 router
     .route('/')
@@ -29,7 +29,8 @@ router
     }) // 채널 전체 조회
     .post((req, res) => {
         if (req.body.channelTitle) {
-            db.set(id++, req.body);
+            let channel = req.body;
+            db.set(id++, channel);
 
             res.status(201).json({
                 message: `${db.get(id - 1).channelTitle}채널을 응원합니다.`
