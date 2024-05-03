@@ -5,32 +5,35 @@ router.use(express.json()) // http 외 모듈 'json'
 
 let db = new Map();
 var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
-db.set(id++, {'userId': 'test1', 'password': 1234, 'name': 'tester1'});
+db.set('testId1', {'userId': 'testId1', 'password': 1234, 'name': 'tester1'});
 
 // 로그인
 router.post('/login', (req, res) => {
-    console.log(req.body); // userId, pwd
-
     // userId가 db에 저장된 회원인지 확인
     const { userId, password } = req.body;
     var loginUser = {};
 
-    db.forEach((user, id) => {
+    db.forEach((user) => {
         if (user.userId === userId) {
             loginUser = user;
         }
     });
 
     if (isExist(loginUser)) {
-        console.log('입력하신 아이디는 없는 아이디 입니다.');
-    } else {
-        console.log('아이디 일치');
-        // pwd도 맞는지 비교
+
         if (loginUser.password === password) {
-            console.log('패스워드 일치');
+            res.status(200).json({
+                message : `${loginUser.name}님 로그인 되었습니다.`
+            });
         } else {
-            console.log('패스워드 불일치');
+            res.status(400).json({
+                message : '비밀번호가 틀렸습니다.'
+            });
         }
+    } else {
+        res.status(404).json({
+            message : '회원 정보가 없습니다.'
+        });
     }
 })
 
@@ -45,11 +48,11 @@ function isExist(obj) {
 // 회원가입
 router.post('/join', (req, res) => {
     console.log(req.body);
-
-    if (req.body.userId && req.body.password && req.body.name) {
-        db.set(id++, req.body);
+    const {userId, password, name} = req.body;
+    if (userId && password && name) {
+        db.set(userId, req.body);
         res.status(201).json({
-            message: `${db.get(id - 1).name}님 환영합니다.`
+            message: `${db.get(userId).name}님 환영합니다.`
         });
     } else {
         res.status(400).json({
@@ -59,76 +62,37 @@ router.post('/join', (req, res) => {
 })
 
 router
-    .route('/users/:id')
+    .route('/users/')
     .get((req, res) => {
-        let { id } = req.params;
-        id = parseInt(id);
+        let { userId } = req.body;
 
-        const user = db.get(id);
-        if (user == undefined) {
-            res.status(404).json({
-                message: '회원 정보가 없습니다.'
-            });
-        } else {
+        const user = db.get(userId);
+        if (user) {
             res.status(200).json({
                 userId: user.userId,
                 name: user.name
             });
-        }
-    })
-    .delete((req, res) => {
-        let { id } = req.params;
-        id = parseInt(id);
-
-        const user = db.get(id);
-        if (user == undefined) {
+        } else {
             res.status(404).json({
                 message: '회원 정보가 없습니다.'
             });
-        } else {
-            db.delete(id);
+        }
+    })
+    .delete((req, res) => {
+        let { userId } = req.params;
+
+        const user = db.get(userId);
+        if (user) {
+            db.delete(userId);
 
             res.status(200).json({
                 message: `${user.name}님 다음에 또 뵙겠습니다.`
+            });
+        } else {
+            res.status(404).json({
+                message: '회원 정보가 없습니다.'
             });
         }
     })
 
 module.exports = router;
-
-// // 회원 개별 조회
-// app.get('/users/:id', (req, res) => {
-//     let { id } = req.params;
-//     id = parseInt(id);
-
-//     const user = db.get(id);
-//     if (user == undefined) {
-//         res.status(404).json({
-//             message : '회원 정보가 없습니다.'
-//         });
-//     } else {
-//         res.status(200).json({
-//             userId : user.userId,
-//             name : user.name
-//         });
-//     }
-// })
-
-// // 회원 개별 탈퇴
-// app.delete('/users/:id', (req, res) => {
-//     let { id } = req.params;
-//     id = parseInt(id);
-
-//     const user = db.get(id);
-//     if (user == undefined) {
-//         res.status(404).json({
-//             message : '회원 정보가 없습니다.'
-//         });
-//     } else {
-//         db.delete(id);
-
-//         res.status(200).json({
-//             message : `${user.name}님 다음에 또 뵙겠습니다.`
-//         });
-//     }
-// })
