@@ -5,6 +5,7 @@ router.use(express.json()) // http 외 모듈 'json'
 
 let db = new Map();
 var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
+db.set(id++, {'userId': 'test1', 'password': 1234, 'name': 'tester1'});
 
 // 로그인
 router.post('/login', (req, res) => {

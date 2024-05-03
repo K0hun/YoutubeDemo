@@ -3,7 +3,8 @@ const app = express();
 
 app.listen(7777);
 
-// const channel = require('./routes/channel-demo');
-const userRouter = require('./routes/user-demo');
+const userRouter = require('./routes/users');
+const channelRouter = require('./routes/channels');
 
+app.use('/channels', channelRouter);
 app.use('/', userRouter);
