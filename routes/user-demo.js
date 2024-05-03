@@ -1,8 +1,13 @@
-db.set(id++, { "userId": "testId1", "password": 1234, "name": "tester1" });
-db.set(id++, { "userId": "testId2", "password": 1234, "name": "tester2" });
-db.set(id++, { "userId": "testId3", "password": 1234, "name": "tester3" });
+const express = require('express');
+const router = express.Router();
+
+router.use(express.json()) // http 외 모듈 'json'
+
+let db = new Map();
+var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
+
 // 로그인
-app.post('/login', (req, res) => {
+router.post('/login', (req, res) => {
     console.log(req.body); // userId, pwd
 
     // userId가 db에 저장된 회원인지 확인
@@ -28,16 +33,16 @@ app.post('/login', (req, res) => {
     }
 })
 
-function isExist(obj){
-    if(Object.keys(obj).length){
+function isExist(obj) {
+    if (Object.keys(obj).length) {
         return true;
-    }else{
+    } else {
         return false;
     }
 }
 
 // 회원가입
-app.post('/join', (req, res) => {
+router.post('/join', (req, res) => {
     console.log(req.body);
 
     if (req.body.userId && req.body.password && req.body.name) {
@@ -52,7 +57,7 @@ app.post('/join', (req, res) => {
     }
 })
 
-app
+router
     .route('/users/:id')
     .get((req, res) => {
         let { id } = req.params;
@@ -87,6 +92,8 @@ app
             });
         }
     })
+
+module.exports = router;
 
 // // 회원 개별 조회
 // app.get('/users/:id', (req, res) => {
