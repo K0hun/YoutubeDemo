@@ -10,7 +10,10 @@ const connection = mysql.createConnection({
 connection.query(
     'SELECT * FROM `users`; ',
     function(err, results, fields){
-        console.log(results);
-        console.log(fields);
+        var {id, email, name, created_at} = results[0]
+        console.log(id);
+        console.log(email);
+        console.log(name);
+        console.log(created_at);
     }
 );
