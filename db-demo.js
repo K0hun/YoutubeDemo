@@ -4,7 +4,8 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'Youtube'
+    database: 'Youtube',
+    dateStrings : true
 });
 
 connection.query(
