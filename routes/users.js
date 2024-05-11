@@ -20,16 +20,16 @@ router.post('/login', (req, res) => {
 
         if (loginUser.password === password) {
             res.status(200).json({
-                message : `${loginUser.name}님 로그인 되었습니다.`
+                message: `${loginUser.name}님 로그인 되었습니다.`
             });
         } else {
             res.status(400).json({
-                message : '비밀번호가 틀렸습니다.'
+                message: '비밀번호가 틀렸습니다.'
             });
         }
     } else {
         res.status(404).json({
-            message : '회원 정보가 없습니다.'
+            message: '회원 정보가 없습니다.'
         });
     }
 })
@@ -45,7 +45,7 @@ function isExist(obj) {
 // 회원가입
 router.post('/join', (req, res) => {
     console.log(req.body);
-    const {userId, password, name} = req.body;
+    const { userId, password, name } = req.body;
     if (userId && password && name) {
         db.set(userId, req.body);
         res.status(201).json({
@@ -59,21 +59,21 @@ router.post('/join', (req, res) => {
 })
 
 router
-    .route('/users/')
+    .route('/users')
     .get((req, res) => {
-        let { userId } = req.body;
+        let { email } = req.body;
 
-        const user = db.get(userId);
-        if (user) {
-            res.status(200).json({
-                userId: user.userId,
-                name: user.name
-            });
-        } else {
-            res.status(404).json({
-                message: '회원 정보가 없습니다.'
-            });
-        }
+        conn.query(`select * from users where email = ?`, email, (err, results, field) => {
+            if (results.length)
+                res.status(200).json(results);
+            else {
+                res.status(404).json({
+                    message: '회원 정보가 없습니다.'
+                });
+            }
+        });
+
+
     })
     .delete((req, res) => {
         let { userId } = req.params;
