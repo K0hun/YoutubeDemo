@@ -2,17 +2,16 @@ const express = require('express');
 const router = express.Router();
 const conn = require('../mariadb');
 
-router.use(express.json()) // http 외 모듈 'json'
+router.use(express.json())
 
-// 로그인
 router.post('/login', (req, res) => {
-    // userId가 db에 저장된 회원인지 확인
     const { email, password } = req.body;
 
+    let sql = 'select * from users where email = ?';
     conn.query(
-        'select * from users where email = ?', email,
-        (err, results, fields) => {
+        sql, email, (err, results) => {
             var loginUser = results[0];
+
             if (loginUser && loginUser.password == password) {
                 res.status(200).json({
                     message: `${loginUser.name}님 로그인 되었습니다.`
@@ -26,27 +25,16 @@ router.post('/login', (req, res) => {
     );
 });
 
-function isExist(obj) {
-    if (Object.keys(obj).length) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-// 회원가입
 router.post('/join', (req, res) => {
     const { email, name, password, contact } = req.body;
 
     if (email && password && name) {
+        let sql = 'insert into users (email, name, password, contact) values (?, ?, ?, ?)';
+        let values = [email, name, password, contact];
         conn.query(
-            'insert into users (email, name, password, contact) values (?, ?, ?, ?)', [email, name, password, contact],
-            (err, results, fields) => {
+            sql, values, (err, results) => {
                 res.status(200).json(results);
             });
-        // res.status(201).json({
-        //     message: `${db.get(userId).name}님 환영합니다.`
-        // });
     } else {
         res.status(400).json({
             message: `입력 값을 다시 확인해주세요.`
@@ -59,8 +47,9 @@ router
     .get((req, res) => {
         let { email } = req.body;
 
-        conn.query(`select * from users where email = ?`, email,
-            (err, results, fields) => {
+        let sql = `select * from users where email = ?`;
+        conn.query(
+            sql, email, (err, results) => {
                 if (results.length)
                     res.status(200).json(results);
                 else {
@@ -69,15 +58,13 @@ router
                     });
                 }
             });
-
-
     })
     .delete((req, res) => {
         let { email } = req.body;
 
+        let sql = 'delete from users where email = ?';
         conn.query(
-            'delete from users where email = ?', email,
-            (err, results, fields) => {
+            sql, email, (err, results) => {
                 res.status(200).json(results);
             });
     });
