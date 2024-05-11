@@ -7,32 +7,24 @@ router.use(express.json()) // http 외 모듈 'json'
 // 로그인
 router.post('/login', (req, res) => {
     // userId가 db에 저장된 회원인지 확인
-    const { userId, password } = req.body;
-    var loginUser = {};
+    const { email, password } = req.body;
 
-    db.forEach((user) => {
-        if (user.userId === userId) {
-            loginUser = user;
+    conn.query(
+        'select * from users where email = ?', email,
+        (err, results, fields) => {
+            var loginUser = results[0];
+            if (loginUser && loginUser.password == password) {
+                res.status(200).json({
+                    message: `${loginUser.name}님 로그인 되었습니다.`
+                });
+            } else {
+                res.status(404).json({
+                    message: '이메일 또는 비밀번호가 틀렸습니다.'
+                });
+            }
         }
-    });
-
-    if (isExist(loginUser)) {
-
-        if (loginUser.password === password) {
-            res.status(200).json({
-                message: `${loginUser.name}님 로그인 되었습니다.`
-            });
-        } else {
-            res.status(400).json({
-                message: '비밀번호가 틀렸습니다.'
-            });
-        }
-    } else {
-        res.status(404).json({
-            message: '회원 정보가 없습니다.'
-        });
-    }
-})
+    );
+});
 
 function isExist(obj) {
     if (Object.keys(obj).length) {
@@ -45,11 +37,11 @@ function isExist(obj) {
 // 회원가입
 router.post('/join', (req, res) => {
     const { email, name, password, contact } = req.body;
-    
+
     if (email && password && name) {
         conn.query(
-            'insert into users (email, name, password, contact) values (?, ?, ?, ?)', [email, name, password, contact], 
-            (err, results, field)=>{
+            'insert into users (email, name, password, contact) values (?, ?, ?, ?)', [email, name, password, contact],
+            (err, results, fields) => {
                 res.status(200).json(results);
             });
         // res.status(201).json({
@@ -67,33 +59,27 @@ router
     .get((req, res) => {
         let { email } = req.body;
 
-        conn.query(`select * from users where email = ?`, email, (err, results, field) => {
-            if (results.length)
-                res.status(200).json(results);
-            else {
-                res.status(404).json({
-                    message: '회원 정보가 없습니다.'
-                });
-            }
-        });
+        conn.query(`select * from users where email = ?`, email,
+            (err, results, fields) => {
+                if (results.length)
+                    res.status(200).json(results);
+                else {
+                    res.status(404).json({
+                        message: '회원 정보가 없습니다.'
+                    });
+                }
+            });
 
 
     })
     .delete((req, res) => {
-        let { userId } = req.params;
+        let { email } = req.body;
 
-        const user = db.get(userId);
-        if (user) {
-            db.delete(userId);
-
-            res.status(200).json({
-                message: `${user.name}님 다음에 또 뵙겠습니다.`
+        conn.query(
+            'delete from users where email = ?', email,
+            (err, results, fields) => {
+                res.status(200).json(results);
             });
-        } else {
-            res.status(404).json({
-                message: '회원 정보가 없습니다.'
-            });
-        }
-    })
+    });
 
 module.exports = router;
