@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const conn = require('../mariadb');
 
 router.use(express.json()) // http 외 모듈 'json'
-
-let db = new Map();
-var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
-db.set('testId1', {'userId': 'testId1', 'password': 1234, 'name': 'tester1'});
 
 // 로그인
 router.post('/login', (req, res) => {
