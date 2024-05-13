@@ -128,21 +128,30 @@ router
                 }
             );
         }) // 채널 개별 수정
-    .delete((req, res) => {
-        let { id } = req.params;
-        id = parseInt(id);
+    .delete(
+        param('id').notEmpty().withMessage('채널id 필요')
+        , (req, res) => {
+            const err = validationResult(req);
 
-        var channel = db.get(id);
-        if (channel) {
-            db.delete(id);
+            if (!err.isEmpty()) {
+                return res.status(400).json(err.array());
+            }
 
-            res.status(200).json({
-                message: `${channel.channelTitle}이 정상적으로 삭제되었습니다.`
-            })
-        } else {
-            notFoundChannel();
-        }
-    }) // 채널 개별 삭제
+            let { id } = req.params;
+            id = parseInt(id);
+
+            let sql = 'delete from channels where id = ?';
+            conn.query(
+                sql, id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).end();
+                    }
+                    
+                    res.status(200).json(results);
+                }
+            );
+        }) // 채널 개별 삭제
 
 function notFoundChannel(res) {
     res.status(404).json({
