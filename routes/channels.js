@@ -5,18 +5,22 @@ const { body, param, validationResult } = require('express-validator');
 
 router.use(express.json());
 
+const validate = (req, res) => {
+    const err = validationResult(req);
+
+    if (!err.isEmpty()) {
+        return res.status(400).json(err.array());
+    }
+}
+
 router
     .route('/')
     .get(
-        body('userId').notEmpty().isInt().withMessage('숫자 입력 필요')
+        [
+            body('userId').notEmpty().isInt().withMessage('숫자 입력 필요'),
+            validate
+        ]
         , (req, res) => {
-            const err = validationResult(req);
-
-            if (!err.isEmpty()) {
-                console.log(err.array());
-                return res.status(400).json(err.array());
-            }
-
             var { userId } = req.body;
 
             let sql = 'select * from channels where user_id = ?';
@@ -147,7 +151,7 @@ router
                         console.log(err);
                         return res.status(400).end();
                     }
-                    
+
                     res.status(200).json(results);
                 }
             );
