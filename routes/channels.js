@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const conn = require('../mariadb');
+const { body, validationResult } = require('express-validator');
 
 router.use(express.json());
 
@@ -23,21 +24,29 @@ router
             res.status(400).end();
         }
     }) // 채널 전체 조회
-    .post((req, res) => {
-        const { name, userId } = req.body;
-        if (name && userId) {
+    .post(
+        [
+            body('userId').notEmpty().isInt().withMessage('숫자 입력하자!'),
+            body('name').notEmpty().isString().withMessage('문자 입력 필요')
+        ]
+        , (req, res) => {
+            const err = validationResult(req);
+
+            if (!err.isEmpty()) {
+                console.log(err.array());
+                return res.status(400).json(err.array());
+            }
+
+            const { name, userId } = req.body;
             let sql = 'insert into channels (name, user_id) values (?, ?)';
             let values = [name, userId];
             conn.query(
                 sql, values, (err, results) => {
                     res.status(200).json(results);
                 });
-        } else {
-            res.status(400).json({
-                message: '요청 값을 제대로 보내주세요.'
-            });
-        }
-    }) // 채널 개별 생성
+
+
+        }) // 채널 개별 생성
 
 router
     .route('/:id')
