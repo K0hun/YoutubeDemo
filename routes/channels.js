@@ -42,6 +42,10 @@ router
             let values = [name, userId];
             conn.query(
                 sql, values, (err, results) => {
+                    if(err){
+                        console.log(err);
+                        return res.status(400).end();
+                    }
                     res.status(200).json(results);
                 });
 
