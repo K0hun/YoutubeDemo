@@ -83,6 +83,11 @@ router
             let sql = 'select * from channels where id = ?';
             conn.query(
                 sql, id, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).end();
+                    }
+
                     if (results.length)
                         res.status(200).json(results);
                     else
@@ -90,25 +95,39 @@ router
                 }
             );
         }) // 채널 개별 조회
-    .put((req, res) => {
-        let { id } = req.params;
-        id = parseInt(id);
+    .put(
+        [
+            param('id').notEmpty().withMessage('채널id 필요'),
+            body('name').notEmpty().isString().withMessage('채널명 오류')
+        ]
+        , (req, res) => {
+            const err = validationResult(req);
 
-        var channel = db.get(id);
-        var oldTitle = channel.channelTitle;
-        if (channel) {
-            var newTitle = req.body.channelTitle;
+            if (!err.isEmpty()) {
+                return res.status(400).json(err.array());
+            }
 
-            channel.channelTitle = newTitle;
-            db.set(id, channel);
+            let { id } = req.params;
+            id = parseInt(id);
+            let { name } = req.body;
 
-            res.status(200).json({
-                message: `채널명이 정상적으로 수정되었습니다. 기존 ${oldTitle} -> 수정 ${newTitle}`
-            });
-        } else {
-            notFoundChannel();
-        }
-    }) // 채널 개별 수정
+            let sql = 'update channels set name = ? where id = ?';
+            let values = [name, id]
+            conn.query(
+                sql, values, (err, results) => {
+                    if (err) {
+                        console.log(err);
+                        return res.status(400).end();
+                    }
+
+                    if (results.affectedRows == 0) {
+                        return res.status(400).end();
+                    } else {
+                        res.status(200).json(results);
+                    }
+                }
+            );
+        }) // 채널 개별 수정
     .delete((req, res) => {
         let { id } = req.params;
         id = parseInt(id);
