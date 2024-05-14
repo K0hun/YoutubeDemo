@@ -36,7 +36,7 @@ router
                         if (results.length)
                             res.status(200).json(results);
                         else
-                            notFoundChannel(res);
+                            return res.status(400).end();
                     }
                 );
             } else {
@@ -87,7 +87,7 @@ router
                     if (results.length)
                         res.status(200).json(results);
                     else
-                        notFoundChannel(res);
+                        return res.status(400).end();
                 }
             );
         }) // 채널 개별 조회
@@ -136,7 +136,11 @@ router
                         return res.status(400).end();
                     }
 
-                    res.status(200).json(results);
+                    if (results.affectedRows == 0) {
+                        return res.status(400).end();
+                    } else {
+                        res.status(200).json(results);
+                    }
                 }
             );
         }) // 채널 개별 삭제
