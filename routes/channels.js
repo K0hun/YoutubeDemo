@@ -5,11 +5,13 @@ const { body, param, validationResult } = require('express-validator');
 
 router.use(express.json());
 
-const validate = (req, res) => {
+const validate = (req, res, next) => {
     const err = validationResult(req);
 
     if (!err.isEmpty()) {
         return res.status(400).json(err.array());
+    } else {
+        return next(); // 다음 할 일 (미들웨어, 함수)
     }
 }
 
@@ -20,7 +22,7 @@ router
             body('userId').notEmpty().isInt().withMessage('숫자 입력 필요'),
             validate
         ]
-        , (req, res) => {
+        , (req, res, next) => {
             var { userId } = req.body;
 
             let sql = 'select * from channels where user_id = ?';
