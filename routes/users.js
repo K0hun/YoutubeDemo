@@ -1,15 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const conn = require('../mariadb');
-const { body, param, validationResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
+
+// jwt모듈
+const jwt = require('jsonwebtoken');
+// dotenv 모듈
+const dotenv = require('dotenv');
+dotenv.config();
 
 const validate = (req, res, next) => {
     const err = validationResult(req);
 
-    if (!err.isEmpty()) {
-        return res.status(400).json(err.array());
-    } else {
+    if (err.isEmpty()) {
         return next(); // 다음 할 일 (미들웨어, 함수)
+    } else {
+        return res.status(400).json(err.array());
     }
 }
 
@@ -36,8 +42,16 @@ router.post(
                 var loginUser = results[0];
 
                 if (loginUser && loginUser.password == password) {
+                    const token = jwt.sign({
+                        email : loginUser.email,
+                        name : loginUser.name
+                    }, process.env.PRIVATE_KEY);
+
+                    // res.cookie()
+
                     res.status(200).json({
-                        message: `${loginUser.name}님 로그인 되었습니다.`
+                        message: `${loginUser.name}님 로그인 되었습니다.`,
+                        token : token
                     });
                 } else {
                     res.status(404).json({
